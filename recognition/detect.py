@@ -1,11 +1,15 @@
+import json
+
 import cv2
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 from src.text_recognition import decode
+from src.character_recognition import overlap
 
 
-def main(image_path: str, display: bool = False):
+def main(image_path: str, characterset: list, display: bool = False):
     # Reading an image from path
     image = parse_image_from_path(image_path, (640, 640))
 
@@ -19,6 +23,9 @@ def main(image_path: str, display: bool = False):
 
     # Cropping the best fit serail number from the image
     cropped = crop_serial_number(image, indices, boxes)
+
+    # Seperating individual characters from the serial
+    characters = split_to_characters(cropped, (16, 16), characterset)
 
 
 def parse_image_from_path(image_path: str, resolution: tuple = None):
@@ -107,5 +114,56 @@ def crop_serial_number(image: np.ndarray, indices: list, boxes: list):
     return cropped
 
 
+def split_to_characters(image: np.ndarray, character_shape: tuple, characterset: list):
+    image_array = []
+    avr_color = np.average(image)
+
+    _, mask = cv2.threshold(image, avr_color - 20,
+                            avr_color + 20, cv2.THRESH_BINARY_INV)
+
+    mask = cv2.dilate(mask, np.ones((1, 1), np.uint8))
+
+    # Converting mask to grayscale and applying it
+    mask = cv2.cvtColor(mask, cv2.COLOR_BGR2GRAY)
+    res = cv2.bitwise_and(image, image, mask=mask)
+
+    # Creating MSER bounding boxes
+    mser = cv2.MSER_create()
+    w, h, _ = image.shape
+    mser.setMinArea(10)
+    mser.setMaxArea(int((w*h)/2))
+    _, rects = mser.detectRegions(mask)
+
+    # Sorting rectangles from left to right
+    rects = rects[rects[:, 0].argsort()]
+
+    rects = np.array([r for i, r in enumerate(list(rects)) if not [
+                     j for j in list(rects[:i]) if overlap(r, j)]])
+
+    # Cropping every bounding box found
+    segments_found = []
+    print(rects)
+    for (x, y, w, h) in rects:
+        if 0.2 < w/h and w/h < 0.8 and w < h:
+            segments_found.append(cv2.cvtColor(
+                image[y:y+h, x:x+w], cv2.COLOR_BGR2GRAY))
+            cv2.rectangle(res, (x, y), (x+w, y+h),
+                          color=(255, 0, 255), thickness=1)
+
+    cv2.imshow('image', res)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    # If the amount of bounding boxes is the same as the string lenth, add every character
+    # segment to an image array and its label to a character array
+    for segment in segments_found:
+        image_array.append(
+            cv2.resize(segment, dsize=character_shape, interpolation=cv2.INTER_CUBIC))
+
+    return np.array(image_array)
+
+
 if __name__ == "__main__":
-    main("./docs/img/banknotes/100euro2.jpg")
+    with open('./models/character/2020_07_06__11_24_04/characterset.json') as json_file:
+        characterset = json.load(json_file)
+    main("./docs/img/banknotes/10euro.jpg", characterset)
