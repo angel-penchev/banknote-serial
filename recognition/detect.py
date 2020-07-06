@@ -6,10 +6,10 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 
 from src.text_recognition import decode
-from src.character_recognition import overlap
+from src.character_recognition import overlap, serial_decode
 
 
-def main(image_path: str, characterset: list, display: bool = False):
+def main(image_path: str, characterset: list, model_directory: str, display: bool = False):
     # Reading an image from path
     image = parse_image_from_path(image_path, (640, 640))
 
@@ -26,6 +26,9 @@ def main(image_path: str, characterset: list, display: bool = False):
 
     # Seperating individual characters from the serial
     characters = split_to_characters(cropped, (16, 16), characterset)
+
+    prediction = predict_characters(characters, model_directory, characterset)
+    print(prediction)
 
 
 def parse_image_from_path(image_path: str, resolution: tuple = None):
@@ -142,7 +145,6 @@ def split_to_characters(image: np.ndarray, character_shape: tuple, characterset:
 
     # Cropping every bounding box found
     segments_found = []
-    print(rects)
     for (x, y, w, h) in rects:
         if 0.2 < w/h and w/h < 0.8 and w < h:
             segments_found.append(cv2.cvtColor(
@@ -150,20 +152,22 @@ def split_to_characters(image: np.ndarray, character_shape: tuple, characterset:
             cv2.rectangle(res, (x, y), (x+w, y+h),
                           color=(255, 0, 255), thickness=1)
 
-    cv2.imshow('image', res)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
     # If the amount of bounding boxes is the same as the string lenth, add every character
     # segment to an image array and its label to a character array
     for segment in segments_found:
         image_array.append(
-            cv2.resize(segment, dsize=character_shape, interpolation=cv2.INTER_CUBIC))
+            cv2.resize(segment, dsize=character_shape, interpolation=cv2.INTER_CUBIC).reshape(character_shape[0], character_shape[1], 1))
 
     return np.array(image_array)
 
 
+def predict_characters(characters, model_directory, characterset):
+    model = tf.keras.models.load_model(model_directory)
+    return [serial_decode(p, characterset) for p in model.predict(characters)]
+
+
 if __name__ == "__main__":
-    with open('./models/character/2020_07_06__11_24_04/characterset.json') as json_file:
+    model_directory = "./models/character/2020_07_06__11_24_04"
+    with open('{}/characterset.json'.format(model_directory)) as json_file:
         characterset = json.load(json_file)
-    main("./docs/img/banknotes/10euro.jpg", characterset)
+    main("./docs/img/banknotes/10euro.jpg", characterset, model_directory)

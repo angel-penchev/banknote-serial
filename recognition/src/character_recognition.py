@@ -6,3 +6,8 @@ def overlap(r1, r2):
         return False
 
     return True
+
+
+def serial_decode(serial, characterset):
+    serial = list(serial)
+    return characterset[serial.index(max(serial))]
