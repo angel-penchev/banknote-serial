@@ -16,8 +16,7 @@ const upload = multer({
   },
   fileFilter: fileFilter
 })
-
-router.post('/', upload.array('banknoteImages'), function (req, res) {
+router.post('/', upload.array('images'), function (req, res) {
   return res.json(req.files);
 });
 
