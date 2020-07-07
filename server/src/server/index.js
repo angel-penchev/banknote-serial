@@ -1,4 +1,4 @@
-var fs = require('fs'),
+const fs = require('fs'),
   http = require('http'),
   path = require('path'),
   methods = require('methods'),
@@ -9,10 +9,10 @@ var fs = require('fs'),
   passport = require('passport'),
   errorhandler = require('errorhandler')
 
-var isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === 'production';
 
 // Create global app object
-var app = express();
+const app = express();
 
 app.use(cors());
 
