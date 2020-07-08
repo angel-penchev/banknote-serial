@@ -1,7 +1,8 @@
+import { addBanknoteDetails, getAllBanknotes, updateBanknoteSerial as updateBanknoteSerials } from '../../models/banknote'
+
 const router = require('express').Router();
 const multer = require('multer');
 const { spawn } = require('child_process');
-const e = require('express');
 
 const fileFilter = (req, file, cb) => {
   if (file.mimetype.includes('image/')) {
@@ -20,8 +21,12 @@ const upload = multer({
 })
 
 router.post('/', upload.array('images'), function (req, res) {
+  addBanknoteDetails(req, res);
+
   let scriptArguments = ["../recognition/detect.py"];
-  req.files.forEach((f) => scriptArguments.push(f["path"]));
+  req.files.forEach((f) => {
+    scriptArguments.push(f["path"]);
+  });
 
   let detectionResponse;
   const python = spawn('python3', scriptArguments);
@@ -30,24 +35,32 @@ router.post('/', upload.array('images'), function (req, res) {
   });
 
   python.on('close', () => {
+    let detection_results = [];
     if (req.query.brief === "true") {
-      let result = [];
       req.files.forEach((f, i) => {
-        result.push({
-          "originalname": f.originalname,
+        detection_results.push({
+          "original_name": f.originalname,
           "filename": f.filename,
           "serial": detectionResponse[i]
         });
       })
-      res.send(result);
     } else {
       req.files.forEach((f, i) => {
-        f["serial"] = detectionResponse[i];
+        detection_results.push({
+          "field_name": f.filename,
+          "original_name": f.originalname,
+          "mimetype": f.mimetype,
+          "filename": f.filename,
+          "size": f.size,
+          "serial": detectionResponse[i]
+        });
       })
-      res.send(req.files);
     }
+    res.send(detection_results);
+    updateBanknoteSerials({ "serials": detectionResponse, "files": req.files });
   });
 });
 
+router.get('/', getAllBanknotes);
 
 module.exports = router;

@@ -16,7 +16,9 @@ const createBanknotesTable = () => {
   const banknotesCreateQuery = `
     CREATE TABLE IF NOT EXISTS banknotes (
       id SERIAL PRIMARY KEY,
-      image_path VARCHAR(100) NOT NULL,
+      filename VARCHAR(100) NOT NULL,
+      original_name VARCHAR(100) NOT NULL,
+      created_on VARCHAR(100) NOT NULL,
       serial VARCHAR(20)
     )`;
 
