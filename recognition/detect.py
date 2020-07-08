@@ -1,34 +1,56 @@
-import json
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-import cv2
-import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt
+import numpy as np
+import cv2
+import argparse
+import json
+import glob
 
-from src.text_recognition import decode
 from src.character_recognition import overlap, serial_decode
+from src.text_recognition import decode
+
+SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
 
 
-def main(image_path: str, characterset: list, model_directory: str, display: bool = False):
-    # Reading an image from path
-    image = parse_image_from_path(image_path, (640, 640))
+def main(
+        image_paths: list,
+        characterset: list,
+        model_directory: str,
+        image_resolution: tuple = (640, 640),
+        character_resolution: tuple = (16, 16),
+        display_image: bool = False,
+        display_path: bool = False
+):
+    for image_path in image_paths:
+        try:
+            # Reading an image from path
+            image = parse_image_from_path(image_path, image_resolution)
 
-    # Detecting text in the picture
-    boxes, indices = find_serial_from_banknote(
-        "models/text/frozen_east_text_detection.pb", image)
+            # Detecting text in the picture
+            boxes, indices = find_serial_from_banknote(
+                SCRIPT_DIRECTORY + "/models/text/frozen_east_text_detection.pb", image)
 
-    # Displaying detected bounding boxes
-    if display:
-        display_serial_boxes(image, indices, boxes)
+            # Displaying detected bounding boxes
+            if display_image:
+                display_serial_boxes(image, indices, boxes)
 
-    # Cropping the best fit serail number from the image
-    cropped = crop_serial_number(image, indices, boxes)
+            # Cropping the best fit serail number from the image
+            cropped = crop_serial_number(image, indices, boxes)
 
-    # Seperating individual characters from the serial
-    characters = split_to_characters(cropped, (16, 16), characterset)
+            # Seperating individual characters from the serial
+            characters = split_to_characters(cropped, character_resolution)
 
-    prediction = predict_characters(characters, model_directory, characterset)
-    print(prediction)
+            prediction = predict_characters(
+                characters, model_directory, characterset)
+
+            if display_path:
+                print("{} -> {}".format(image_path, "".join(prediction)))
+            else:
+                print("".join(prediction))
+        except:
+            print("INVALID")
 
 
 def parse_image_from_path(image_path: str, resolution: tuple = None):
@@ -55,13 +77,13 @@ def find_serial_from_banknote(
         image, 1.0, image.shape[:2], (123.68, 116.78, 103.94), True, False)
 
     # Defining output layers containing bbox geometry/confidence
-    outputLayers = []
-    outputLayers.append("feature_fusion/Conv_7/Sigmoid")
-    outputLayers.append("feature_fusion/concat_3")
+    output_layers = []
+    output_layers.append("feature_fusion/Conv_7/Sigmoid")
+    output_layers.append("feature_fusion/concat_3")
 
     # Forward pass input + gather output
     net.setInput(blob)
-    output = net.forward(outputLayers)
+    output = net.forward(output_layers)
 
     # Output processing
     scores = output[0]
@@ -117,7 +139,7 @@ def crop_serial_number(image: np.ndarray, indices: list, boxes: list):
     return cropped
 
 
-def split_to_characters(image: np.ndarray, character_shape: tuple, characterset: list):
+def split_to_characters(image: np.ndarray, character_shape: tuple):
     image_array = []
     avr_color = np.average(image)
 
@@ -141,12 +163,12 @@ def split_to_characters(image: np.ndarray, character_shape: tuple, characterset:
     rects = rects[rects[:, 0].argsort()]
 
     rects = np.array([r for i, r in enumerate(list(rects)) if not [
-                     j for j in list(rects[:i]) if overlap(r, j)]])
+        j for j in list(rects[:i]) if overlap(r, j)]])
 
     # Cropping every bounding box found
     segments_found = []
     for (x, y, w, h) in rects:
-        if 0.2 < w/h and w/h < 0.8 and w < h:
+        if w/h > 0.2 and w/h < 0.8 and w < h:
             segments_found.append(cv2.cvtColor(
                 image[y:y+h, x:x+w], cv2.COLOR_BGR2GRAY))
             cv2.rectangle(res, (x, y), (x+w, y+h),
@@ -156,18 +178,56 @@ def split_to_characters(image: np.ndarray, character_shape: tuple, characterset:
     # segment to an image array and its label to a character array
     for segment in segments_found:
         image_array.append(
-            cv2.resize(segment, dsize=character_shape, interpolation=cv2.INTER_CUBIC).reshape(character_shape[0], character_shape[1], 1))
+            cv2.resize(segment, dsize=character_shape,
+                       interpolation=cv2.INTER_CUBIC)
+            .reshape(character_shape[0], character_shape[1], 1))
 
     return np.array(image_array)
 
 
-def predict_characters(characters, model_directory, characterset):
+def predict_characters(characters: np.ndarray, model_directory: str, characterset: list):
     model = tf.keras.models.load_model(model_directory)
     return [serial_decode(p, characterset) for p in model.predict(characters)]
 
 
 if __name__ == "__main__":
-    model_directory = "./models/character/2020_07_06__11_24_04"
-    with open('{}/characterset.json'.format(model_directory)) as json_file:
-        characterset = json.load(json_file)
-    main("./docs/img/banknotes/10euro.jpg", characterset, model_directory)
+    PARSER = argparse.ArgumentParser(
+        description='Detect the serial number from banknote images.')
+    PARSER.add_argument('paths', metavar='paths', type=str, nargs='+',
+                        help='banknote image paths')
+    PARSER.add_argument("-m", "--model", dest="model", action="store",
+                        default="latest", type=str,
+                        help="path to character classification model")
+    PARSER.add_argument("-c", "--characterset", dest="characterset",
+                        action="store", type=list, default=None,
+                        help="list of characters for model output decoding")
+    PARSER.add_argument("-R", "--image-resolution", dest="image_resolution",
+                        action="store", type=tuple, default=(640, 640),
+                        help="the resolution which the original image should be scaled to")
+    PARSER.add_argument("-r", "--character-resolution", dest="character_resolution",
+                        action="store", type=tuple, default=(16, 16),
+                        help="the resolution which the character images should be scaled to")
+    PARSER.add_argument("-d", "--display-image", dest="display_image",
+                        action="store", type=bool,
+                        help="whether to display the string detection or not")
+    PARSER.add_argument("-D", "--display-path", dest="display_path",
+                        action="store", type=bool,
+                        help="whether to display the path of the image or not")
+
+    ARGS = PARSER.parse_args()
+
+    if ARGS.model == "latest":
+        ARGS.model = glob.glob(SCRIPT_DIRECTORY + "/models/character/*")[-1]
+
+    if not ARGS.characterset:
+        with open('{}/characterset.json'.format(ARGS.model)) as json_file:
+            ARGS.characterset = json.load(json_file)
+
+    main(
+        ARGS.paths,
+        ARGS.characterset,
+        ARGS.model,
+        ARGS.image_resolution,
+        ARGS.character_resolution,
+        ARGS.display_image,
+        ARGS.display_path)
