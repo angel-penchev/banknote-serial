@@ -11,6 +11,8 @@ import glob
 from src.character_recognition import overlap, serial_decode
 from src.text_recognition import decode
 
+SCRIPT_DIRECTORY = os.path.dirname(os.path.realpath(__file__))
+
 
 def main(
         image_paths: list,
@@ -22,30 +24,33 @@ def main(
         display_path: bool = False
 ):
     for image_path in image_paths:
-        # Reading an image from path
-        image = parse_image_from_path(image_path, image_resolution)
+        try:
+            # Reading an image from path
+            image = parse_image_from_path(image_path, image_resolution)
 
-        # Detecting text in the picture
-        boxes, indices = find_serial_from_banknote(
-            "models/text/frozen_east_text_detection.pb", image)
+            # Detecting text in the picture
+            boxes, indices = find_serial_from_banknote(
+                SCRIPT_DIRECTORY + "/models/text/frozen_east_text_detection.pb", image)
 
-        # Displaying detected bounding boxes
-        if display_image:
-            display_serial_boxes(image, indices, boxes)
+            # Displaying detected bounding boxes
+            if display_image:
+                display_serial_boxes(image, indices, boxes)
 
-        # Cropping the best fit serail number from the image
-        cropped = crop_serial_number(image, indices, boxes)
+            # Cropping the best fit serail number from the image
+            cropped = crop_serial_number(image, indices, boxes)
 
-        # Seperating individual characters from the serial
-        characters = split_to_characters(cropped, character_resolution)
+            # Seperating individual characters from the serial
+            characters = split_to_characters(cropped, character_resolution)
 
-        prediction = predict_characters(
-            characters, model_directory, characterset)
+            prediction = predict_characters(
+                characters, model_directory, characterset)
 
-        if display_path:
-            print("{} -> {}".format(image_path, "".join(prediction)))
-        else:
-            print("".join(prediction))
+            if display_path:
+                print("{} -> {}".format(image_path, "".join(prediction)))
+            else:
+                print("".join(prediction))
+        except:
+            print("INVALID")
 
 
 def parse_image_from_path(image_path: str, resolution: tuple = None):
@@ -212,7 +217,7 @@ if __name__ == "__main__":
     ARGS = PARSER.parse_args()
 
     if ARGS.model == "latest":
-        ARGS.model = glob.glob("./models/character/*")[-1]
+        ARGS.model = glob.glob(SCRIPT_DIRECTORY + "/models/character/*")[-1]
 
     if not ARGS.characterset:
         with open('{}/characterset.json'.format(ARGS.model)) as json_file:
