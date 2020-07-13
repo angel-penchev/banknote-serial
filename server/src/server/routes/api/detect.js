@@ -13,7 +13,7 @@ const fileFilter = (req, file, cb) => {
 }
 
 const upload = multer({
-  dest: "src/assets/uploads",
+  dest: "src/server/uploads",
   limits: {
     fileSize: 1024 * 1024 * 20
   },
@@ -21,7 +21,6 @@ const upload = multer({
 })
 
 router.post('/', upload.array('images'), function (req, res) {
-  console.log(req.files);
   addBanknoteDetails(req, res);
 
   let scriptArguments = ["../recognition/detect.py"];

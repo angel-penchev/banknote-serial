@@ -1,4 +1,5 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, HostBinding } from '@angular/core';
+import { ImageThumbnailService } from './image-thumbnail.service'
 
 @Component({
   selector: 'app-image-thumbnail',
@@ -8,13 +9,32 @@ import { Component, OnInit, Input } from '@angular/core';
 export class ImageThumbnailComponent implements OnInit {
   @Input() file: File;
   imgURL: any;
+  elementOpacity = 1.0;
+  elementDisplay = "inline-block";
 
-  constructor() {
-  }
+  constructor(
+    private imageThumbnailService: ImageThumbnailService
+  ) {}
 
   ngOnInit(): void {
     this.generateThumbnail(this.file);
-    this.startUpload();
+
+    this.imageThumbnailService.startUpload(this.file);
+    this.imageThumbnailService.change.subscribe(async (uploadedFile) => {
+      if (this.file === uploadedFile) {
+        this.imgURL = "https://bit.ly/32ccZGA"
+      } else {
+        this.imgURL = "https://bit.ly/30coDyO"
+      }
+      await this.delay(500);
+      this.elementOpacity = 0.0;
+      await this.delay(300);
+      this.elementDisplay = "none";
+    });
+  }
+
+  delay(ms: number) {
+    return new Promise( resolve => setTimeout(resolve, ms) );
   }
 
   generateThumbnail(file) {
@@ -33,7 +53,5 @@ export class ImageThumbnailComponent implements OnInit {
     }
   }
 
-  startUpload() {
-    console.log(this.file);
-  }
+
 }
