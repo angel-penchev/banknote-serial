@@ -1,0 +1,16 @@
+<div class="image-upload" appFileDropzone (hovered)="toggleHover($event)" (dropped)="onDrop($event)">
+  <input hidden type="file" #fileInput (change)="onDrop($event.target.files)">
+  <svg class="circles stack" height="70vh" width="70vh">
+    <circle id="c1" class="circle" cx="50%" cy="50%" r="45%" stroke="#bcc1cd" stroke-width="1" fill="#498bce0f" />
+    <circle id="c2" class="circle" cx="50%" cy="50%" r="30%" stroke="#bcc1cd" stroke-width="1" fill="#498bce0f">
+      <animate class="cricle-animation" *ngIf="isHovering" id="c2-anim" attributeName="r" dur="0.5s" from="30%" to="35%" restart="always"/>
+    </circle>
+    <circle id="c3" class="circle" cx="50%" cy="50%" r="15%" stroke="#bcc1cd" stroke-width="1" fill="#498bce0f" />
+  </svg>
+  <fa-icon class="stack image-icon" [icon]="fa.image" size="4x"></fa-icon>
+</div>
+<div class="image-thumbnails">
+  <div class="image-thubnail" *ngFor="let file of files">
+    <app-image-thumbnail [file]="file"></app-image-thumbnail>
+  </div>
+</div>

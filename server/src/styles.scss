@@ -1,1 +1,18 @@
-/* You can add global styles to this file, and also import other style files */
+@import "shared/variables";
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0 10vw;
+  padding: 0;
+  background-color: $background-primary;
+  color: $text-color-primary;
+  font-family: $text-font;
+}
+
+a {
+  color: $text-color-primary;
+  text-decoration: none;
+}

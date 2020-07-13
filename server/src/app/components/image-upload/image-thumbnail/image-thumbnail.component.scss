@@ -1,0 +1,14 @@
+.image-thubnail {
+  display: inline-block;
+}
+
+.thumbnail {
+  position: relative;
+  overflow: hidden;
+  width: 2rem;
+  height: 2rem;
+}
+
+.rounded {
+  border-radius: 50%;
+}

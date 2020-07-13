@@ -21,6 +21,7 @@ const upload = multer({
 })
 
 router.post('/', upload.array('images'), function (req, res) {
+  console.log(req.files);
   addBanknoteDetails(req, res);
 
   let scriptArguments = ["../recognition/detect.py"];
