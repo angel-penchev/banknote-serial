@@ -1,1 +1,31 @@
-<p>prediction-list works!</p>
+<div [className]="expanded ? 'prediction-list expanded' : 'prediction-list'">
+  <div class="expand-list">
+    <button class="expand-list-button button" (click)="expandList()">^</button>
+  </div>
+
+  <div class="list-page-controls">
+    <button *ngIf="page != 0" class="list-left-button button" (click)="prevPage()"><</button>
+    <button *ngIf="predictionList[predictionList.length-1].id != 1" class="list-right-button button" (click)="nextPage()">></button>
+  </div>
+
+  <div *ngFor="let item of predictionList; let i = index" class="prediction-item">
+    <div class="item-thumbnail">
+      <img src="https://www.thesun.co.uk/wp-content/uploads/2018/11/NINTCHDBPICT000441292664-e1541152688205.jpg" alt="" class="item-thumbnail-image">
+    </div>
+    <div class="item-description">
+      <p class="item-name">{{ item.original_name }}</p>
+      <p class="item-date">{{ item.created_on }}</p>
+    </div>
+    <div class="item-serial">
+      <p [ngClass]="{
+        'item-serial-text' : true,
+        'invalid': item.serial === 'INVALID',
+        'valid': item.serial !== 'INVALID'
+      }">{{ item.serial }}</p>
+    </div>
+    <div class="item-options">
+      <button class="button" (click)="openDialog()">o</button>
+      <button class="button" (click)="openDialog()">o</button>
+    </div>
+  </div>
+</div>

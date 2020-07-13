@@ -48,7 +48,7 @@ const addBanknoteDetails = async (req) => {
   });
 };
 
-const updateBanknoteSerial = async (detection_result) => {
+const updateBanknoteSerials = async (detection_result) => {
   const serials = detection_result.serials;
   const files = detection_result.files;
 
@@ -95,7 +95,7 @@ const getBanknotes = async (req, res) => {
 
   const values = [
     size,
-    page
+    size * page
   ];
 
   try {
@@ -149,6 +149,6 @@ const patchBanknote = async (req, res) => {
 export {
   addBanknoteDetails,
   getBanknotes,
-  updateBanknoteSerial,
+  updateBanknoteSerials,
   patchBanknote
 };

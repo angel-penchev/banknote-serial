@@ -4,7 +4,7 @@ import { HttpClient, HttpParams, HttpRequest, HttpResponse } from '@angular/comm
 @Injectable({
   providedIn: 'root'
 })
-export class ImageThumbnailService {
+export class ImageUploadService {
   url = "http://localhost:3000/api/detect";
 
 

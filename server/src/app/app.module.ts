@@ -11,6 +11,9 @@ import { FileDropzoneDirective } from './file-dropzone.directive';
 import { HttpClientModule } from '@angular/common/http';
 import { ImageThumbnailComponent } from './components/image-upload/image-thumbnail/image-thumbnail.component';
 import { PredictionListComponent } from './components/prediction-list/prediction-list.component';
+import { MatDialogModule } from '@angular/material/dialog';
+import { ImagePreviewComponent } from './components/prediction-list/image-preview/image-preview.component';
+import { EditComponent } from './components/prediction-list/edit/edit.component';
 
 @NgModule({
   declarations: [
@@ -19,14 +22,17 @@ import { PredictionListComponent } from './components/prediction-list/prediction
     NavbarComponent,
     FileDropzoneDirective,
     ImageThumbnailComponent,
-    PredictionListComponent
+    PredictionListComponent,
+    ImagePreviewComponent,
+    EditComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     FontAwesomeModule,
-    HttpClientModule
+    HttpClientModule,
+    MatDialogModule
   ],
   providers: [],
   bootstrap: [AppComponent]
