@@ -1,4 +1,4 @@
-import { addBanknoteDetails, getAllBanknotes, updateBanknoteSerial as updateBanknoteSerials } from '../../models/banknote'
+import { addBanknoteDetails, getBanknotes, updateBanknoteSerials, patchBanknote } from '../../models/banknote'
 
 const router = require('express').Router();
 const multer = require('multer');
@@ -61,6 +61,8 @@ router.post('/', upload.array('images'), function (req, res) {
   });
 });
 
-router.get('/', getAllBanknotes);
+router.get('/', getBanknotes);
+
+router.patch('/', patchBanknote);
 
 module.exports = router;

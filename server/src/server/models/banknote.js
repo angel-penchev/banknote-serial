@@ -77,21 +77,21 @@ const updateBanknoteSerial = async (detection_result) => {
 
 
 /**
-   * Get All Banknotes
+   * Get Banknotes
    * @param {object} req
    * @param {object} res
    * @returns {object} banknotes array
    */
-const getAllBanknotes = async (req, res) => {
+const getBanknotes = async (req, res) => {
   const page = parseInt(req.query.page) || 0
   const size = parseInt(req.query.size) || null
 
-  const getAllBanknoteQuery = `
-    SELECT *
-    FROM banknotes
-    ORDER BY id DESC
-    LIMIT $1
-    OFFSET $2`;
+  const getBanknotesQuery = `
+              SELECT *
+              FROM banknotes
+              ORDER BY id DESC
+              LIMIT $1
+              OFFSET $2`;
 
   const values = [
     size,
@@ -99,7 +99,7 @@ const getAllBanknotes = async (req, res) => {
   ];
 
   try {
-    const { rows } = await query.query(getAllBanknoteQuery, values);
+    const { rows } = await query.query(getBanknotesQuery, values);
     const dbResponse = rows;
     if (dbResponse[0] === undefined) {
       errorMessage.error = 'There are no banknotes';
@@ -113,9 +113,42 @@ const getAllBanknotes = async (req, res) => {
   }
 };
 
+/**
+   * Patch Banknotes
+   * @param {object} req
+   * @param {object} res
+   * @returns {object} banknotes array
+   */
+const patchBanknote = async (req, res) => {
+  const id = parseInt(req.query.id)
+  const name = req.query.name
+  const serial = req.query.serial
+
+  const patchBanknoteQuery = `
+              UPDATE banknotes
+              SET original_name = $1,
+                  serial = $2
+              WHERE id = $3`;
+
+  const values = [
+    name,
+    serial,
+    id
+  ];
+
+  try {
+    await query.query(patchBanknoteQuery, values);
+    return res.status(status.success).send(successMessage);
+  } catch (error) {
+    errorMessage.error = 'Unable to edit banknote';
+    return res.status(status.error).send(errorMessage);
+  }
+};
+
 
 export {
   addBanknoteDetails,
-  getAllBanknotes,
-  updateBanknoteSerial
+  getBanknotes,
+  updateBanknoteSerial,
+  patchBanknote
 };
