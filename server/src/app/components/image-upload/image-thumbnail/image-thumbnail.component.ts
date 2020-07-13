@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, HostBinding } from '@angular/core';
-import { ImageThumbnailService } from './image-thumbnail.service'
+import { ImageThumbnailService } from './image-upload.service'
 
 @Component({
   selector: 'app-image-thumbnail',

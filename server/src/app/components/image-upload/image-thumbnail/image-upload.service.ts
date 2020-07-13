@@ -28,7 +28,6 @@ export class ImageThumbnailService {
     this.http.request(req).subscribe((data) => {
       if (data instanceof HttpResponse) {
         this.change.emit(file);
-        console.log(data);
       }
     });
   }

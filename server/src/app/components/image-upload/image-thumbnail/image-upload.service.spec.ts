@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ImageThumbnailService } from './image-thumbnail.service';
+import { ImageThumbnailService } from './image-upload.service';
 
 describe('ImageThumbnailService', () => {
   let service: ImageThumbnailService;

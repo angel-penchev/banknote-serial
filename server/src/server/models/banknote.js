@@ -83,9 +83,23 @@ const updateBanknoteSerial = async (detection_result) => {
    * @returns {object} banknotes array
    */
 const getAllBanknotes = async (req, res) => {
-  const getAllBanknoteQuery = 'SELECT * FROM banknotes ORDER BY id DESC';
+  const page = parseInt(req.query.page) || 0
+  const size = parseInt(req.query.size) || null
+
+  const getAllBanknoteQuery = `
+    SELECT *
+    FROM banknotes
+    ORDER BY id DESC
+    LIMIT $1
+    OFFSET $2`;
+
+  const values = [
+    size,
+    page
+  ];
+
   try {
-    const { rows } = await query.query(getAllBanknoteQuery);
+    const { rows } = await query.query(getAllBanknoteQuery, values);
     const dbResponse = rows;
     if (dbResponse[0] === undefined) {
       errorMessage.error = 'There are no banknotes';

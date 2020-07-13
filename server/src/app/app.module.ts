@@ -10,6 +10,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { FileDropzoneDirective } from './file-dropzone.directive';
 import { HttpClientModule } from '@angular/common/http';
 import { ImageThumbnailComponent } from './components/image-upload/image-thumbnail/image-thumbnail.component';
+import { PredictionListComponent } from './components/prediction-list/prediction-list.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { ImageThumbnailComponent } from './components/image-upload/image-thumbna
     ImageUploadComponent,
     NavbarComponent,
     FileDropzoneDirective,
-    ImageThumbnailComponent
+    ImageThumbnailComponent,
+    PredictionListComponent
   ],
   imports: [
     BrowserModule,
