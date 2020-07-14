@@ -10,7 +10,7 @@
 
   <div *ngFor="let item of predictionList; let i = index" class="prediction-item">
     <div class="item-thumbnail">
-      <img src="https://www.thesun.co.uk/wp-content/uploads/2018/11/NINTCHDBPICT000441292664-e1541152688205.jpg" alt="" class="item-thumbnail-image">
+      <img src="http://127.0.0.1:3000/api/image?path={{item.filename}}" alt="" class="item-thumbnail-image">
     </div>
     <div class="item-description">
       <p class="item-name">{{ item.original_name }}</p>
