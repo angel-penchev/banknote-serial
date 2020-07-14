@@ -19,6 +19,7 @@ import {
    * @returns {object} reflection object
    */
 const addBanknoteDetails = async (req) => {
+  console.log("post");
   req.files.forEach(async (file) => {
     const filename = file.filename;
     const original_name = file.originalname;
@@ -48,7 +49,7 @@ const addBanknoteDetails = async (req) => {
   });
 };
 
-const updateBanknoteSerial = async (detection_result) => {
+const updateBanknoteSerials = async (detection_result) => {
   const serials = detection_result.serials;
   const files = detection_result.files;
 
@@ -77,15 +78,30 @@ const updateBanknoteSerial = async (detection_result) => {
 
 
 /**
-   * Get All Banknotes
+   * Get Banknotes
    * @param {object} req
    * @param {object} res
    * @returns {object} banknotes array
    */
-const getAllBanknotes = async (req, res) => {
-  const getAllBanknoteQuery = 'SELECT * FROM banknotes ORDER BY id DESC';
+const getBanknotes = async (req, res) => {
+  console.log("get");
+  const page = parseInt(req.query.page) || 0
+  const size = parseInt(req.query.size) || null
+
+  const getBanknotesQuery = `
+              SELECT *
+              FROM banknotes
+              ORDER BY id DESC
+              LIMIT $1
+              OFFSET $2`;
+
+  const values = [
+    size,
+    size * page
+  ];
+
   try {
-    const { rows } = await query.query(getAllBanknoteQuery);
+    const { rows } = await query.query(getBanknotesQuery, values);
     const dbResponse = rows;
     if (dbResponse[0] === undefined) {
       errorMessage.error = 'There are no banknotes';
@@ -99,9 +115,45 @@ const getAllBanknotes = async (req, res) => {
   }
 };
 
+/**
+   * Patch Banknotes
+   * @param {object} req
+   * @param {object} res
+   * @returns {object} banknotes array
+   */
+const patchBanknote = async (req, res) => {
+  console.log("patch");
+  const id = parseInt(req.query.id)
+  const name = req.query.name
+  const serial = req.query.serial
+
+  const patchBanknoteQuery = `
+              UPDATE banknotes
+              SET original_name = $1,
+                  serial = $2
+              WHERE id = $3`;
+
+  const values = [
+    name,
+    serial,
+    id
+  ];
+
+  console.log(values);
+
+  try {
+    await query.query(patchBanknoteQuery, values);
+    return res.status(status.success).send({"status": "success"});
+  } catch (error) {
+    errorMessage.error = 'Unable to edit banknote';
+    return res.status(status.error).send(errorMessage);
+  }
+};
+
 
 export {
   addBanknoteDetails,
-  getAllBanknotes,
-  updateBanknoteSerial
+  getBanknotes,
+  updateBanknoteSerials,
+  patchBanknote
 };

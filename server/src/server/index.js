@@ -39,8 +39,6 @@ app.use(function (req, res, next) {
   next(err);
 });
 
-/// Error handlers
-
 // Development error handler
 // will print stacktrace
 if (!isProduction) {

@@ -1,0 +1,21 @@
+app-navbar {
+  display: block;
+  height: 10vh;
+  width: 80vw;
+  min-height: 5rem;
+  z-index: 4;
+}
+
+app-image-upload {
+  display: block;
+  height: 75vh;
+  width: 70vh;
+  margin: auto;
+}
+
+app-prediction-list {
+  display: block;
+  position: relative;
+  height: 10vh;
+  margin: 0 10vw;
+}

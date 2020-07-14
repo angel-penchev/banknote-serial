@@ -1,0 +1,154 @@
+@import "../../../shared/variables";
+
+.prediction-list {
+  position: absolute;
+  height: 11.5vh;
+  width: 100%;
+  bottom: 0;
+  padding: 5px 5px 5px;
+  overflow: hidden;
+
+  background-color: $background-primary;
+  transition: all 0.5s ease-in-out;
+
+  .button {
+    background: none;
+    border: none;
+    padding: 1rem 2rem;
+    margin: 0;
+    text-decoration: none;
+    background: $color-primary;
+    color: #ffffff;
+    font-family: $text-font;
+    font-size: 1rem;
+    line-height: 1vw;
+    border-radius: 50vh;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  .expand-list {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    margin-left: auto;
+    margin-right: auto;
+    z-index: 100;
+  }
+
+  .list-page-controls {
+    position: absolute;
+    width: 100%;
+    z-index: 200;
+
+    .list-left-button {
+      position: absolute;
+      top: 40vh;
+      left: -5px;
+    }
+
+    .list-right-button {
+      position: absolute;
+      top: 40vh;
+      right: 5px;
+    }
+  }
+
+  .prediction-item {
+    display: block;
+    height: 10vh;
+    width: 100%;
+    margin: 0.5vh 0;
+    border-radius: 50vh;
+    border: 1px solid $color-primary;
+
+    .item-thumbnail {
+      display: inline-block;
+      height: 100%;
+      width: 20%;
+
+      .item-thumbnail-image {
+        display: inline-block;
+        position: relative;
+        margin: 0 0.5rem;
+        height: 9vh;
+        top: 50%;
+        transform: translateY(-50%);
+
+        border-radius: 50vh;
+      }
+    }
+
+    .item-description {
+      display: inline-block;
+      height: 100%;
+      width: 30%;
+
+      line-height: 1vw;
+      top: 50%;
+
+      .item-name {
+        position: relative;
+        font-size: 1vw;
+        line-height: 1.25vw;
+        font-weight: 500;
+      }
+
+      .item-date {
+        position: relative;
+        transform: translateY(-50%);
+        font-weight: 300;
+      }
+    }
+
+    .item-serial {
+      display: inline-block;
+      height: 100%;
+      width: 30%;
+      text-align: center;
+
+      .item-serial-text {
+        position: relative;
+        bottom: 50%;
+        transform: translateY(50%);
+        line-height: 1.5vw;
+        font-size: 1.25vw;
+        font-weight: 500;
+      }
+
+      .invalid {
+        color: $label-invalid;
+      }
+
+      .valid {
+        color: $label-valid;
+      }
+    }
+  }
+
+  .item-options {
+    display: inline-block;
+    height: 100%;
+    width: 20%;
+    text-align: center;
+
+    .item-button {
+      position: relative;
+      bottom: 50%;
+      transform: translateY(50%);
+      background: none;
+      border: 1px solid $color-primary;
+      padding: 1rem 1.25rem;
+      margin: 0 0.5rem;
+    }
+  }
+}
+
+.expanded {
+  height: 85vh;
+}
+
+.dialog-background {
+  background-color: $background-primary;
+}
