@@ -5,7 +5,7 @@
 
   <div class="list-page-controls">
     <button *ngIf="page != 0" class="list-left-button button" (click)="prevPage()"><</button>
-    <button *ngIf="predictionList[predictionList.length-1].id != 1" class="list-right-button button" (click)="nextPage()">></button>
+    <button *ngIf="predictionList === null || predictionList[predictionList.length-1].id != 1" class="list-right-button button" (click)="nextPage()">></button>
   </div>
 
   <div *ngFor="let item of predictionList; let i = index" class="prediction-item">
@@ -24,8 +24,12 @@
       }">{{ item.serial }}</p>
     </div>
     <div class="item-options">
-      <button class="button" (click)="openDialog()">o</button>
-      <button class="button" (click)="openDialog()">o</button>
+      <button class="button item-button" (click)="openImagePreviewDialog()">
+        <fa-icon class="stack image-icon" [icon]="fa.image" size="2x"></fa-icon>
+      </button>
+      <button class="button item-button" (click)="openEditDialog(item.id, item.original_name, item.serial)">
+        <fa-icon class="stack image-icon" [icon]="fa.edit" size="2x"></fa-icon>
+      </button>
     </div>
   </div>
 </div>

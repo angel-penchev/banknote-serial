@@ -19,6 +19,7 @@ import {
    * @returns {object} reflection object
    */
 const addBanknoteDetails = async (req) => {
+  console.log("post");
   req.files.forEach(async (file) => {
     const filename = file.filename;
     const original_name = file.originalname;
@@ -83,6 +84,7 @@ const updateBanknoteSerials = async (detection_result) => {
    * @returns {object} banknotes array
    */
 const getBanknotes = async (req, res) => {
+  console.log("get");
   const page = parseInt(req.query.page) || 0
   const size = parseInt(req.query.size) || null
 
@@ -120,6 +122,7 @@ const getBanknotes = async (req, res) => {
    * @returns {object} banknotes array
    */
 const patchBanknote = async (req, res) => {
+  console.log("patch");
   const id = parseInt(req.query.id)
   const name = req.query.name
   const serial = req.query.serial
@@ -136,9 +139,11 @@ const patchBanknote = async (req, res) => {
     id
   ];
 
+  console.log(values);
+
   try {
     await query.query(patchBanknoteQuery, values);
-    return res.status(status.success).send(successMessage);
+    return res.status(status.success).send({"status": "success"});
   } catch (error) {
     errorMessage.error = 'Unable to edit banknote';
     return res.status(status.error).send(errorMessage);

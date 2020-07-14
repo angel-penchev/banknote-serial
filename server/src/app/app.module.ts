@@ -14,6 +14,10 @@ import { PredictionListComponent } from './components/prediction-list/prediction
 import { MatDialogModule } from '@angular/material/dialog';
 import { ImagePreviewComponent } from './components/prediction-list/image-preview/image-preview.component';
 import { EditComponent } from './components/prediction-list/edit/edit.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @NgModule({
   declarations: [
@@ -32,7 +36,11 @@ import { EditComponent } from './components/prediction-list/edit/edit.component'
     BrowserAnimationsModule,
     FontAwesomeModule,
     HttpClientModule,
-    MatDialogModule
+    MatDialogModule,
+    MatFormFieldModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule
   ],
   providers: [],
   bootstrap: [AppComponent]

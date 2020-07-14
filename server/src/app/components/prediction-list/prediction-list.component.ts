@@ -3,6 +3,13 @@ import { ImageUploadService } from '../image-upload/image-thumbnail/image-upload
 import { HttpParams, HttpRequest, HttpResponse, HttpClient } from '@angular/common/http';
 import { MatDialog } from '@angular/material/dialog';
 import { ImagePreviewComponent } from './image-preview/image-preview.component';
+import { EditComponent } from './edit/edit.component';
+import { faEdit, faImage } from '@fortawesome/free-solid-svg-icons';
+
+export interface DialogData {
+  name: string;
+  serial: string;
+}
 
 @Component({
   selector: 'app-prediction-list',
@@ -12,7 +19,12 @@ import { ImagePreviewComponent } from './image-preview/image-preview.component';
 export class PredictionListComponent implements OnInit {
   predictionList: any;
   page = 0;
-  expanded = true;
+  expanded = false;
+
+  fa = {
+    edit: faEdit,
+    image: faImage
+  }
 
   constructor(
     private imageUploadService: ImageUploadService,
@@ -61,11 +73,36 @@ export class PredictionListComponent implements OnInit {
     this.refreshList();
   }
 
-  openDialog() {
-    const dialogRef = this.dialog.open(ImagePreviewComponent);
+  openImagePreviewDialog() {
+    this.dialog.open(ImagePreviewComponent);
+  }
+
+  openEditDialog(id: string, name: string, serial: string) {
+    const dialogRef = this.dialog.open(EditComponent, {
+      width: '250px',
+      backdropClass: 'dialog-background',
+      data: {name: name, serial: serial}
+    });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log("ayy");
+      name = result.name;
+      serial = result.serial;
+
+      let formData = new FormData();
+      let params = new HttpParams();
+      const options = {
+        params: params,
+        reportProgress: true,
+      };
+
+      let url = "http://localhost:3000/api/detect?id=" + id + "&serial=" + serial + "&name=" + name ;
+      const req = new HttpRequest('PATCH', url, formData, options);
+      this.http.request(req).subscribe((res) => {
+
+        if (res instanceof HttpResponse) {
+          this.refreshList();
+        }
+      });
     });
   }
 }

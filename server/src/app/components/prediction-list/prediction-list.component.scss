@@ -132,9 +132,23 @@
     height: 100%;
     width: 20%;
     text-align: center;
+
+    .item-button {
+      position: relative;
+      bottom: 50%;
+      transform: translateY(50%);
+      background: none;
+      border: 1px solid $color-primary;
+      padding: 1rem 1.25rem;
+      margin: 0 0.5rem;
+    }
   }
 }
 
 .expanded {
   height: 85vh;
+}
+
+.dialog-background {
+  background-color: $background-primary;
 }
